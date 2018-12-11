@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,height=device-height initial-scale=1.0">
+    <title>Fleet Application</title>
+    <link rel="stylesheet" type="text/css" href="styles/style.css">
+
+</head>
+<body>
+	<h1>Fleet Application</h1>
+   
+<div class="row">
+  <div class="column">
+    <div class="card">
+		<h2>GPS</h2>
+	<div id="map1">
+	</div>
+    </div>
+  </div>
+
+  <div class="column">
+    <div class="card">
+	<h2>Simulated car 1</h2>
+		<div id="map2">
+		</div>
+    </div>
+  </div>
+  
+  <div class="column">
+    <div class="card">
+	<h2>Simulated car 2</h2>
+		<div id="map3">
+		</div>
+    </div>
+  </div>
+</div>
+<br>
+<br>
+<br>
+<div>
+<a href="https://3f5cff9a-0020-40e1-b419-b665448a2f1a-bluemix.cloudant.com/fleetdata/_design/coordinates/_view/history" target="_blank">Click here to retrieve Coordinate History from Database</a>
+</div>
+	
+<script>
+    var map1;
+    var map2;
+    var map3;
+    var initialized = false;
+    var coordinates;
+	var marker1;
+	var marker2;
+	var marker3;
+	
+	function addDynamicMarker(locations, maps) {
+    var marker1 = new google.maps.Marker({
+        position: locations[0],
+        map: maps[0],
+        draggable: false,
+        // icon: image,
+        animation: google.maps.Animation.DROP
+    });
+	    var marker2 = new google.maps.Marker({
+        position: locations[1],
+        map: maps[1],
+        draggable: false,
+        // icon: image,
+        animation: google.maps.Animation.DROP
+    });
+
+	    var marker3 = new google.maps.Marker({
+        position: locations[2],
+        map: maps[2],
+        draggable: false,
+        // icon: image,
+        animation: google.maps.Animation.DROP
+    });
+
+    setTimeout(function () {
+        marker1.setMap(null);
+        delete marker1;
+		marker2.setMap(null);
+        delete marker2;
+		marker3.setMap(null);
+        delete marker3;
+    }, 2000);
+    return markers;
+}
+
+    setInterval(function() {
+        var Httpreq = new XMLHttpRequest();
+        Httpreq.open("GET",'https://fleetapplication.eu-gb.mybluemix.net/user',true);
+        Httpreq.onload = function () {
+            if(Httpreq.readyState === Httpreq.DONE && Httpreq.status === 200) {
+                if (initialized === true) {
+                    coordinates = JSON.parse(Httpreq.responseText);
+                    var pos1 = {lat: coordinates.gps_coordinates[0], lng: coordinates.gps_coordinates[1]};
+                    var pos2 = {lat: coordinates.sim1_coordinates[0], lng: coordinates.sim1_coordinates[1]};
+                    var pos3 = {lat: coordinates.sim2_coordinates[0], lng: coordinates.sim2_coordinates[1]};
+                    map1.setCenter(pos1);
+					map2.setCenter(pos2);
+					map3.setCenter(pos3);
+					
+					var positions = [pos1, pos2, pos3];
+					var maps = [map1, map2, map3];
+					addDynamicMarker(positions, maps);
+					
+              
+                }
+            }
+        };
+
+        Httpreq.send(null);
+    }, 3000);
+
+	
+    function initMap() {
+        map1 = new google.maps.Map(document.getElementById('map1'), {
+            center: {lat: 60.162200, lng: 24.738582},
+            zoom: 16
+        });
+
+        map2 = new google.maps.Map(document.getElementById('map2'), {
+            center: {lat: 60.192, lng: 24.945},
+            zoom: 16
+        });
+
+        map3 = new google.maps.Map(document.getElementById('map3'), {
+            center: {lat: 60.156334, lng: 24.921151},
+            zoom: 16
+        });
+
+        initialized = true;
+		
+    }
+	
+	
+    	
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDv7VQsEcl5e9tPI40x333nimEkWP1NgiQ&callback=initMap" async defer></script>
+</body>
+</html>
