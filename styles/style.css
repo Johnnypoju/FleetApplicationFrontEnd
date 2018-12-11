@@ -1,0 +1,68 @@
+* {
+    box-sizing: border-box;
+}
+
+ html, body {
+    height: 100%;
+    margin: 0;
+    padding: 10px;
+	font-family: Trebuchet MS, Helvetica, sans-serif;
+}
+
+.column {
+    float: left;
+    width: 32%;
+    padding: 0 10px;
+	
+}
+
+/* Remove extra left and right margins, due to padding */
+.row {margin: 0 -5px;}
+
+#map1 {
+    height: 450px;
+    width: 450px;
+}
+
+#map2 {
+    height: 450px;
+    width: 450px;
+}
+
+#map3 {
+    height: 450px;
+    width: 450px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Responsive columns */
+@media screen and (max-width: 600px) {
+  .column {
+    width: 100%;
+    display: block;
+    margin-bottom: 20px;
+  }
+}
+
+/* Style the counter cards */
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  padding: 4px;
+  text-align: center;
+  background-color: #f1f1f1;
+}
+
+
+a:hover, a:active {
+    background-color: green;
+    color: white;
+}
+
+
+
