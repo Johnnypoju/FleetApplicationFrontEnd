@@ -1,0 +1,259 @@
+[
+    {
+        "id": "f01f8045.9ec83",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "f89cc78c.5b8818",
+        "type": "mqtt in",
+        "z": "f01f8045.9ec83",
+        "name": "Receive Data From RaPi",
+        "topic": "GPS/coordinates",
+        "qos": "2",
+        "broker": "brokerhere",
+        "x": 190,
+        "y": 280,
+        "wires": [
+            [
+                "fb2359cf.309068"
+            ]
+        ]
+    },
+    {
+        "id": "8262bb06.7f3e58",
+        "type": "cloudant out",
+        "z": "f01f8045.9ec83",
+        "name": "Save to Cloudant",
+        "cloudant": "",
+        "database": "fleetdata",
+        "service": "FleetApplication-cloudantNoSQLDB",
+        "payonly": true,
+        "operation": "insert",
+        "x": 850,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "fb2359cf.309068",
+        "type": "json",
+        "z": "f01f8045.9ec83",
+        "name": "Payload to JSON",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 350,
+        "y": 360,
+        "wires": [
+            [
+                "e0e0c5bd.5a02e8",
+                "8d08e132.abf7e",
+                "fae83bf8.e2f0c8"
+            ]
+        ]
+    },
+    {
+        "id": "9acaa5f3.6aec58",
+        "type": "http in",
+        "z": "f01f8045.9ec83",
+        "name": "request coordinate",
+        "url": "/user",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 110,
+        "y": 580,
+        "wires": [
+            [
+                "2df98532.5ab5da",
+                "11f6fbfb.5ae484"
+            ]
+        ]
+    },
+    {
+        "id": "8032f648.df6b58",
+        "type": "function",
+        "z": "f01f8045.9ec83",
+        "name": "coordinates",
+        "func": "context.coord = context.coord || null;\n\nif (msg.topic === \"jsonmsg\"){\n    context.coord = msg.payload; \n}\nif (msg.topic === \"get\"){\n    msg.payload = context.coord;\n    return msg;\n}\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 470,
+        "y": 560,
+        "wires": [
+            [
+                "7e55d8ce.fac328"
+            ]
+        ],
+        "inputLabels": [
+            "msg"
+        ]
+    },
+    {
+        "id": "7e55d8ce.fac328",
+        "type": "function",
+        "z": "f01f8045.9ec83",
+        "name": "Check origin",
+        "func": "if (msg.req.headers.origin === 'http://localhost:63342') {\n    return [msg, null];\n}\n\nif (msg.req.headers.origin === 'http://users.metropolia.fi') {\n    return [null, msg];\n}\n\nreturn [null,null];",
+        "outputs": 2,
+        "noerr": 0,
+        "x": 710,
+        "y": 560,
+        "wires": [
+            [
+                "82dc2305.0884"
+            ],
+            [
+                "a5ef7797.4f60b8"
+            ]
+        ]
+    },
+    {
+        "id": "a5ef7797.4f60b8",
+        "type": "http response",
+        "z": "f01f8045.9ec83",
+        "name": "respond coordinate deploy",
+        "statusCode": "200",
+        "headers": {
+            "Access-Control-Allow-Origin": "http://users.metropolia.fi"
+        },
+        "x": 800,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "8d08e132.abf7e",
+        "type": "delay",
+        "z": "f01f8045.9ec83",
+        "name": "Message save interval",
+        "pauseType": "rate",
+        "timeout": "2",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "minute",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "x": 620,
+        "y": 360,
+        "wires": [
+            [
+                "8262bb06.7f3e58"
+            ]
+        ]
+    },
+    {
+        "id": "e0e0c5bd.5a02e8",
+        "type": "debug",
+        "z": "f01f8045.9ec83",
+        "name": "after parse to json",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 570,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "82dc2305.0884",
+        "type": "http response",
+        "z": "f01f8045.9ec83",
+        "name": "respond coordinate testing",
+        "statusCode": "",
+        "headers": {
+            "Access-Control-Allow-Origin": "http://localhost:63342"
+        },
+        "x": 860,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "fae83bf8.e2f0c8",
+        "type": "function",
+        "z": "f01f8045.9ec83",
+        "name": "funct jsonmsg",
+        "func": "msg.topic = \"jsonmsg\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 300,
+        "y": 500,
+        "wires": [
+            [
+                "8032f648.df6b58",
+                "7eb4497f.f43788"
+            ]
+        ]
+    },
+    {
+        "id": "2df98532.5ab5da",
+        "type": "debug",
+        "z": "f01f8045.9ec83",
+        "name": "topic",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "topic",
+        "x": 240,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "7eb4497f.f43788",
+        "type": "debug",
+        "z": "f01f8045.9ec83",
+        "name": "output functjson",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "topic",
+        "x": 580,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "11f6fbfb.5ae484",
+        "type": "function",
+        "z": "f01f8045.9ec83",
+        "name": "reqget",
+        "func": "msg.topic = \"get\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 290,
+        "y": 560,
+        "wires": [
+            [
+                "8032f648.df6b58"
+            ]
+        ]
+    },
+    {
+        "id": "e0a5c041.f102",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "GPS Data",
+        "broker": "brokeraddress",
+        "port": "portnumber",
+        "clientid": "GPSCoordinatesReceiver",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    }
+]
